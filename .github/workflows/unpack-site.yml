@@ -1,0 +1,51 @@
+name: Unpack website source
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/unpack-site.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Unpack website archive into repository root
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP='WeThePeopleVoice_RC1_1776_With_Images.zip'
+          test -f "$ZIP"
+          rm -rf .unpacked-site
+          mkdir .unpacked-site
+          unzip -q "$ZIP" -d .unpacked-site
+
+          shopt -s dotglob nullglob
+          entries=(.unpacked-site/*)
+          if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            src="${entries[0]}"
+          else
+            src='.unpacked-site'
+          fi
+
+          cp -R "$src"/. ./
+          rm -rf .unpacked-site
+
+      - name: Commit unpacked website files
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Unpack website source files'
+            git push
+          fi
