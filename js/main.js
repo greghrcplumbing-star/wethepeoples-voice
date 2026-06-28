@@ -1,1 +1,1 @@
-function submitDemo(event,type){event.preventDefault();const note=document.createElement('div');note.className='notice';note.innerHTML='<strong>Demo Form:</strong> Ready to connect to Formspree, Basin, Google Forms, or Cloudflare Workers.';event.target.after(note);event.target.reset();}
+function submitDemo(event,type){event.preventDefault();alert('This form is not connected yet. No information was sent.');}
